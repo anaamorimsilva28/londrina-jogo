@@ -474,3 +474,101 @@ function executarChute() {
   estado.forcaChute = 25;
   atualizarBarraForca();
 }
+
+function atualizarBarraForca() {
+  elBarraForca.style.width = `${estado.forcaChute}%`;
+  if (estado.forcaChute <= 50) {
+    elAvisoAltura.textContent = "Rasteiro (Ideal)";
+  } else if (estado.forcaChute <= 76) {
+    elAvisoAltura.textContent = "Meia altura (Bom)";
+  } else {
+    elAvisoAltura.textContent = "Muito alto (Vai isolar!)";
+  }
+}
+
+function avancarRodadaOuPenaltis(motivo) {
+  if (estado.golsJogador >= 3) {
+    encerrarJogo(true, "Você fez 3 gols primeiro e venceu a partida com fair play!");
+    return;
+  }
+  if (estado.golsAdversario >= 3) {
+    encerrarJogo(false, "O adversário chegou a 3 gols primeiro.");
+    return;
+  }
+
+  if (estado.rodadaAtual < estado.maxRodadas) {
+    estado.rodadaAtual += 1;
+    atualizarPainel();
+    abrirDesafioEducativo();
+  } else {
+    // Acabaram as 6 rodadas: verifica empate ou vencedor
+    if (estado.golsJogador > estado.golsAdversario) {
+      encerrarJogo(true, `Fim das 6 rodadas! Você venceu por ${estado.golsJogador} × ${estado.golsAdversario}.`);
+    } else if (estado.golsAdversario > estado.golsJogador) {
+      encerrarJogo(false, `Fim das 6 rodadas! O rival venceu por ${estado.golsAdversario} × ${estado.golsJogador}.`);
+    } else {
+      iniciarDisputaPenaltis();
+    }
+  }
+}
+
+function iniciarDisputaPenaltis() {
+  estado.modoPenaltis = true;
+  estado.tela = "penaltis";
+  estado.penaltisJogador = 0;
+  estado.penaltisAdversario = 0;
+  estado.cobrancasFeitas = 0;
+  estado.turnoPenalti = "jogador";
+  atualizarPainel();
+  prepararCobrancaPenalti();
+}
+
+function registrarResultadoPenalti(marcou) {
+  if (estado.turnoPenalti === "jogador") {
+    if (marcou) {
+      estado.penaltisJogador += 1;
+      estado.pontos += 60;
+      mostrarFeedback("Gol de Pênalti!", "Bela cobrança rasteira dentro da regra!", false);
+    } else {
+      mostrarFeedback("Perdeu o Pênalti!", "A bola não entrou no gol.", true);
+    }
+    estado.turnoPenalti = "adversario";
+    atualizarPainel();
+    setTimeout(prepararCobrancaPenalti, 1300);
+  } else {
+    if (marcou) {
+      estado.penaltisAdversario += 1;
+      mostrarFeedback("Gol do Rival nos Pênaltis!", "O adversário converteu a cobrança.", true);
+    } else {
+      estado.pontos += 60;
+      mostrarFeedback("Defesaça!", "Você defendeu o pênalti do adversário!", false);
+    }
+    estado.cobrancasFeitas += 1;
+    estado.turnoPenalti = "jogador";
+    atualizarPainel();
+
+    if (estado.cobrancasFeitas >= 3) {
+      setTimeout(() => {
+        if (estado.penaltisJogador > estado.penaltisAdversario) {
+          encerrarJogo(true, `Vitória nos pênaltis (${estado.penaltisJogador} × ${estado.penaltisAdversario})!`);
+        } else if (estado.penaltisAdversario > estado.penaltisJogador) {
+          encerrarJogo(false, `Derrota nos pênaltis (${estado.penaltisJogador} × ${estado.penaltisAdversario}).`);
+        } else {
+          // Morte súbita se continuar empatado após 3 cobranças
+          estado.cobrancasFeitas = 2;
+          mostrarFeedback("Empate nos 3 pênaltis!", "Vamos para a cobrança alternada decisiva!", false);
+          prepararCobrancaPenalti();
+        }
+      }, 1300);
+    } else {
+      setTimeout(prepararCobrancaPenalti, 1300);
+    }
+  }
+}
+
+function encerrarJogo(vitoria, mensagem) {
+  estado.tela = "fim";
+  elModalDesafio.classList.add("oculto");
+  elTelaFim.classList.remove("oculto");
+
+  const bonusDisciplina = Math.round(estado.discipl
