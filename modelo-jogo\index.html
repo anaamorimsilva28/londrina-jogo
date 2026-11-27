@@ -1,48 +1,134 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <title>Modelo de Jogo — Jogos VR</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app">
-      <header class="top">
-        <div>
-          <span class="kicker">Modelo</span>
-          <h1 id="title">Clique no Alvo</h1>
-          <p class="subtitle">Troque este jogo pelo seu. O contrato já está pronto.</p>
-        </div>
-        <button id="restart" class="btn" type="button">Reiniciar</button>
-      </header>
-
-      <main>
-        <div class="hud">
-          <span class="pill">Alvos: <strong id="score">0</strong>/<span id="total">10</span></span>
-          <span class="pill">Tempo: <strong id="timer">0,0s</strong></span>
-        </div>
-
-        <div id="board" class="board" aria-label="Área do jogo">
-          <p id="start-hint" class="start-hint">Clique no alvo para começar</p>
-        </div>
-      </main>
-
-      <footer class="bottom">
-        <p>Este é o arquivo <code>game.js</code>. Leia os comentários e adapte.</p>
-      </footer>
-    </div>
-
-    <div id="result" class="overlay" hidden>
-      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
-        <div class="modal-icon" aria-hidden="true">🎯</div>
-        <h2 id="result-title">Muito bem!</h2>
-        <p id="result-text">Você concluiu o jogo.</p>
-        <button id="play-again" class="btn btn-primary full" type="button">Jogar de novo</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Londrina X1 — Regras e Disciplina no Futebol</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container-principal">
+    <!-- Cabeçalho com placar, tempo e barra de disciplina -->
+    <header class="painel-topo">
+      <div class="titulo-jogo">
+        <h1>Londrina X1</h1>
+        <span id="fase-atual" class="etiqueta">Rodada 1/6</span>
       </div>
-    </div>
 
-    <script src="game.js"></script>
-  </body>
+      <div class="placar" aria-live="polite">
+        <div class="time">
+          <span class="nome-time">Você</span>
+          <strong id="gols-jogador" class="numero-gol">0</strong>
+        </div>
+        <span class="divisor-placar">×</span>
+        <div class="time">
+          <strong id="gols-adversario" class="numero-gol">0</strong>
+          <span class="nome-time">Rival</span>
+        </div>
+      </div>
+
+      <div class="status-partida">
+        <div class="bloco-info">
+          <span>Tempo</span>
+          <strong id="relogio-partida">05:00</strong>
+        </div>
+        <div class="bloco-info">
+          <span>Disciplina</span>
+          <div class="barra-disciplina-fundo" title="Nível de respeito às regras">
+            <div id="barra-disciplina" class="barra-disciplina-valor"></div>
+          </div>
+        </div>
+        <button id="botao-tema" class="botao-icone" type="button" aria-label="Alternar tema claro ou escuro">
+          Tema
+        </button>
+      </div>
+    </header>
+
+    <!-- Área visual do campo com grama verde, traves brancas e torcida -->
+    <section class="area-campo" aria-label="Campo de futebol 1 contra 1">
+      <canvas id="canvas-campo" width="800" height="360"></canvas>
+
+      <!-- Aviso rápido de feedback do lance -->
+      <div id="banner-feedback" class="banner-feedback oculto" role="status" aria-live="polite">
+        <strong id="titulo-feedback">Gol válido!</strong>
+        <p id="texto-feedback">Você respeitou a regra e finalizou rasteiro no canto.</p>
+      </div>
+
+      <!-- Painel de decisão educativa (regra e disciplina) -->
+      <div id="modal-desafio" class="sobreposicao oculto" role="dialog" aria-modal="true" aria-labelledby="titulo-desafio">
+        <div class="cartao-modal">
+          <span id="categoria-desafio" class="etiqueta-regra">Regra &amp; Disciplina</span>
+          <h2 id="titulo-desafio">O juiz parou o lance!</h2>
+          <p id="pergunta-desafio" class="texto-pergunta"></p>
+          <div id="opcoes-desafio" class="lista-opcoes"></div>
+        </div>
+      </div>
+
+      <!-- Tela inicial -->
+      <div id="tela-inicio" class="sobreposicao">
+        <div class="cartao-modal">
+          <span class="etiqueta-regra">Educação Física • 8º Ano</span>
+          <h2>Londrina X1</h2>
+          <p class="texto-explicacao">
+            Vence quem fizer <strong>3 gols</strong> primeiro (ou vencer nos <strong>3 pênaltis</strong> em caso de empate)!
+            Mova-se, pule, chute sem isolar a bola por cima do travessão e tome boas decisões de <strong>regras e disciplina</strong>.
+          </p>
+          <ul class="lista-regras-rapidas">
+            <li><strong>Mover:</strong> Setas ◀ ▶ ou botões na tela</li>
+            <li><strong>Pular:</strong> Seta ▲ ou botão Pular</li>
+            <li><strong>Chutar:</strong> Barra de Espaço ou botão Chutar (segure rápido para não chutar alto!)</li>
+          </ul>
+          <button id="botao-iniciar" class="botao-primario" type="button">Começar Partida</button>
+        </div>
+      </div>
+
+      <!-- Tela de fim de jogo -->
+      <div id="tela-fim" class="sobreposicao oculto">
+        <div class="cartao-modal">
+          <span id="etiqueta-resultado" class="etiqueta-regra">Fim de Jogo</span>
+          <h2 id="titulo-resultado">Vitória!</h2>
+          <p id="resumo-resultado" class="texto-explicacao"></p>
+          <div class="resumo-numeros">
+            <div>
+              <span>Placar Final</span>
+              <strong id="placar-final">3 × 1</strong>
+            </div>
+            <div>
+              <span>Disciplina</span>
+              <strong id="disciplina-final">100%</strong>
+            </div>
+            <div>
+              <span>Pontos</span>
+              <strong id="pontos-finais">300</strong>
+            </div>
+          </div>
+          <button id="botao-reiniciar" class="botao-primario" type="button">Jogar Novamente</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controles acessíveis para celular e computador (mínimo 44px) -->
+    <footer class="painel-controles" aria-label="Controles do jogador">
+      <div class="grupo-direcao">
+        <button id="btn-esquerda" class="botao-controle" type="button" aria-label="Ir para trás">◀ Trás</button>
+        <button id="btn-direita" class="botao-controle" type="button" aria-label="Ir para frente">Frente ▶</button>
+      </div>
+
+      <div class="indicador-forca" aria-label="Altura do chute">
+        <span>Altura do Chute:</span>
+        <div class="barra-forca-fundo">
+          <div id="barra-forca" class="barra-forca-valor"></div>
+        </div>
+        <small id="aviso-altura">Rasteiro (Ideal)</small>
+      </div>
+
+      <div class="grupo-acao">
+        <button id="btn-pular" class="botao-controle destaque-pulo" type="button" aria-label="Pular">▲ Pular</button>
+        <button id="btn-chutar" class="botao-controle destaque-chute" type="button" aria-label="Chutar bola">⚽ Chutar</button>
+      </div>
+    </footer>
+  </main>
+
+  <script src="game.js"></script>
+</body>
 </html>
