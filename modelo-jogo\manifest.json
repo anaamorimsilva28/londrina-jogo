@@ -1,16 +1,16 @@
 {
-  "slug": "meu-jogo",
-  "title": "Nome do meu jogo",
-  "author": "Seu nome",
-  "authorClass": "Sua turma",
-  "discipline": "Matemática",
-  "grades": ["6º", "7º"],
-  "tags": ["palavra-chave", "outra-palavra"],
-  "description": "Uma frase curta que explica o que o jogo ensina.",
-  "instructions": "Como jogar, em uma ou duas frases.",
-  "duration": 5,
+  "slug": "londrina-x1",
+  "title": "Londrina X1",
+  "author": "Ana Julia",
+  "authorClass": "8 Ano C",
+  "discipline": "Educação Física",
+  "grades": ["6º ano", "7º ano", "8º ano", "9º ano"],
+  "tags": ["futebol", "regras", "disciplina", "fair-play", "educacao-fisica"],
+  "description": "Duelo de futebol 1 contra 1 em que o jogador movimenta, pula, controla a altura do chute e toma decisões de regras e disciplina para vencer.",
+  "instructions": "Use as setas (ou botões na tela) para ir para frente e para trás, pular e segurar o chute na altura certa sem isolar a bola por cima do gol. Vence quem fizer 3 gols primeiro ou vencer nos 3 pênaltis em caso de empate, mantendo boa disciplina.",
+  "duration": "3-5 min",
   "version": "1.0.0",
   "entry": "index.html",
   "cover": "cover.svg",
-  "createdAt": "2026-11-02"
+  "createdAt": "2026-11-27"
 }
